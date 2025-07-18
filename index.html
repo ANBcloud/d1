@@ -180,7 +180,11 @@
 
         // 3) Leemos cookies y preparamos payload
         const { _fbc: fbc = null, _fbp: fbp = null } = getCookies();
-        const payload = { fbc, fbp };
+        const payload = {
+       pixel_id: PIXEL_ID,  
+       fbc,
+       fbp
+     };
 
         // 4) Enviamos al backend
         const response = await fetch(API_URL, {
