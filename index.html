@@ -203,7 +203,7 @@
         const { message, code, whatsappNumber } = await response.json();
 
         // 6) Redirigimos a WhatsApp
-        const text = encodeURIComponent(`${message} ${code}`);
+        const text = encodeURIComponent(`${message}`);
         window.location.href = `https://wa.me/${whatsappNumber}?text=${text}`;
       } catch (err) {
         console.error('Error en front-end:', err);
