@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="es">
+
+
+
+  <script>
+    const PIXEL_ID = '716620837744069';
+    !function(f,b,e,v,n,t,s){
+      if(f.fbq) return; n=f.fbq=function(){n.callMethod?
+        n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+      if(!f._fbq) f._fbq=n; n.push=n; n.loaded=!0; n.version='2.0';
+      n.queue=[]; t=b.createElement(e); t.async=!0;
+      t.src=v; s=b.getElementsByTagName(e)[0];
+      s.parentNode.insertBefore(t,s);
+    }(window, document, 'script',
+      'https://connect.facebook.net/en_US/fbevents.js'
+    );
+    fbq('init', PIXEL_ID);
+    fbq('track', 'ViewContent');
+
+    fbq('set', 'autoConfig', false, PIXEL_ID);
+
+  </script>
+  
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Anubis Bono de bienvenida</title>
+    <!-- 1. Enlaza tu CSS -->
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- Encabezado -->
+
+
+
+
+
+
+  <!-- Contenido Principal -->
+  <main class="site-main">
+
+
+    
+    <!-- Sección Hero -->
+
+
+    <section id="hero" class="hero">
+
+<h1 class="hero__title1">
+    ANUBIS <br>
+  CASINO ONLINE
+</h1>
+
+      <video
+        class="hero__background"
+        src="videoFondo.mp4"
+        autoplay
+        muted
+        loop
+        playsinline
+      ></video>
+
+      
+
+  <!-- tu banner, SIN cierres extra -->
+  <div class="hero__banner">
+    
+    <img
+      src="Juegos.png"
+      alt="Top Jugados"
+      class="hero__banner-img"
+    />
+  </div>
+
+  <div class="hero__bubble">
+    <span class="hero__bubble-text">
+      ¡SUPER BONO!<br>
+      TRIPLICAMOS TU PRIMER<br>
+      DEPOSITO
+    </span>
+  </div>
+
+
+<a href="#" class="animated-button1">
+  <span></span>
+  <span></span>
+  <span></span>
+  <span></span>
+
+  <img
+    src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg"
+    alt="WhatsApp"
+    class="whatsapp-icon"
+  />
+
+  <!-- Uso de <strong> para negrita sin tocar los <span> animados -->
+  <strong class="btn-text">RECLAMAR BONO</strong>
+</a>
+  <!-- Nuevo contador de usuarios registrados hoy -->
+<div class="hero__counter">
+  <div class="counter-line">
+    USUARIOS REGISTRADOS HOY: <span id="today-count">—</span>
+  </div>
+  <div class="counter-line">
+    USUARIOS JUGANDO: <span id="playing-count">—</span>
+  </div>
+  <div class="counter-line">
+    GANADORES DE HOY: <span id="winners-count">—</span>
+  </div>
+</div>
+
+
+
+      <!-- Contenedor para emojis flotantes -->
+<div id="emoji-container" class="hero__emoji-container"></div>
+        <!-- Aquí insertarse dinámicamente emojis de casino -->
+    
+    </section>
+
+  </main>
+
+  <!-- Pie de página minimal -->
+  <footer class="site-footer">
+    <!-- (Puede quedar vacío o usarse para copyright) -->
+
+    <script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const COOKIE_WAIT = 3000;
+    const API_URL     = 'https://d7acs3bv9f.execute-api.us-east-2.amazonaws.com/prod/MK';
+
+    function getCookies() {
+      return document.cookie
+        .split('; ')
+        .reduce((acc, pair) => {
+          const [k, ...v] = pair.split('=');
+          acc[k] = v.join('=');
+          return acc;
+        }, {});
+    }
+
+    function awaitCookiePresence(name, maxWait = COOKIE_WAIT) {
+      return new Promise(resolve => {
+        const start = Date.now();
+        (function poll() {
+          const found = document.cookie
+            .split('; ')
+            .some(c => c.startsWith(name + '='));
+          if (found || Date.now() - start > maxWait) return resolve();
+          requestAnimationFrame(poll);
+        })();
+      });
+    }
+
+    const btn = document.querySelector('.animated-button1');
+    btn.addEventListener('click', async e => {
+      e.preventDefault();
+
+      // 1) Oculta todo y muestra spinner
+      const bodyChildren = Array.from(document.body.children);
+      bodyChildren.forEach(el => el.style.display = 'none');
+      const spinner = document.createElement('div');
+      spinner.id = 'loading-spinner';
+      spinner.textContent = 'Redirigiendo a Whatsapp…';
+      spinner.style.cssText = `
+        position: fixed;
+        top: 50%; left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 1.2rem;
+        font-weight: bold;
+      `;
+      document.body.appendChild(spinner);
+
+      try {
+        // 2) Esperamos _fbc y _fbp
+        await Promise.all([
+          awaitCookiePresence('_fbc'),
+          awaitCookiePresence('_fbp')
+        ]);
+
+        // 3) Leemos cookies y preparamos payload
+        const { _fbc: fbc = null, _fbp: fbp = null } = getCookies();
+        const payload = { fbc, fbp };
+
+        // 4) Enviamos al backend
+        const response = await fetch(API_URL, {
+          method: 'POST',
+          mode: 'cors',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+          console.error('API response error:', response.status, await response.text());
+          throw new Error('API error');
+        }
+
+        // 5) Recibimos message, code y whatsappNumber
+        const { message, code, whatsappNumber } = await response.json();
+
+        // 6) Redirigimos a WhatsApp
+        const text = encodeURIComponent(`${message} ${code}`);
+        window.location.href = `https://wa.me/${whatsappNumber}?text=${text}`;
+      } catch (err) {
+        console.error('Error en front-end:', err);
+        // opcional: volver a mostrar todo o mostrar mensaje de error
+      }
+    });
+  });
+</script>
+
+
+    <!-- Scripts adicionales -->
+    <script src="scripts.js" defer></script>
+  </footer>
+</body>
+</html>
+
+
+
+
+
+
