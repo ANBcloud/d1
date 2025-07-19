@@ -156,20 +156,31 @@
     btn.addEventListener('click', async e => {
       e.preventDefault();
 
-      // 1) Oculta todo y muestra spinner
-      const bodyChildren = Array.from(document.body.children);
-      bodyChildren.forEach(el => el.style.display = 'none');
-      const spinner = document.createElement('div');
-      spinner.id = 'loading-spinner';
-      spinner.textContent = 'Redirigiendo a Whatsapp…';
-      spinner.style.cssText = `
-        position: fixed;
-        top: 50%; left: 50%;
-        transform: translate(-50%, -50%);
-        font-size: 1.2rem;
-        font-weight: bold;
-      `;
-      document.body.appendChild(spinner);
+    
+// 1) Oculta todo y muestra spinner
+const bodyChildren = Array.from(document.body.children);
+bodyChildren.forEach(el => el.style.display = 'none');
+
+const spinner = document.createElement('div');
+spinner.id = 'loading-spinner';
+spinner.innerHTML = `
+  <div class="loader-container">
+    <img
+      src="https://i.gifer.com/ZZ5H.gif"
+      alt="Cargando..."
+      class="loader-gif"
+    />
+    <div class="typewriter">
+      Redirigiendo a WhatsApp
+      <span class="dots">
+        <span class="dot">.</span>
+        <span class="dot">.</span>
+        <span class="dot">.</span>
+      </span>
+    </div>
+  </div>
+`;
+document.body.appendChild(spinner);
 
       try {
         // 2) Esperamos _fbc y _fbp
